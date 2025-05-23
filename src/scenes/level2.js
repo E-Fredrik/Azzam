@@ -4,7 +4,7 @@ export default class level2 extends Phaser.Scene {
         super("level-2")
     }
 
-    init() {
+    init(data) {
         this.var = undefined
         this.xLemparan = undefined
         this.background = undefined
@@ -14,7 +14,10 @@ export default class level2 extends Phaser.Scene {
         this.ground = undefined
         this.coin = undefined
         this.jump = 0;
-        this.score = 0;
+        
+        // Set the score from previous level or default to 0
+        this.score = data.score || 0;
+        
         this.scorelabel=undefined
         this.isJumping = false; // Add this line
         this.background = undefined
@@ -138,11 +141,16 @@ export default class level2 extends Phaser.Scene {
             this.char.anims.play('idle', true);
         }
     }
-    collectCoin(char,coin)
+    collectCoin(char, coin)
     {
-        coin.destroy()
+        coin.destroy();
         this.score += 1;
         this.scoreLabel.setText(`Score: ${this.score}`);
+        
+        // Check if total score reaches 14 (7 from level 1 + 7 from level 2)
+        if(this.score >= 14) {
+            this.scene.start('over-scene', { score: this.score });
+        }
     }
 
 }
