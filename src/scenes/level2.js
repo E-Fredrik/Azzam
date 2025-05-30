@@ -38,24 +38,67 @@ export default class level2 extends Phaser.Scene {
             frameWidth: 64,
             frameHeight: 92,
         })
-        this.load.image("bg", "../../public/assets/kenney_background-elements-redux/Backgrounds/backgroundColorDesert.png")
+        // Use a different key for the level 2 background
+        this.load.image("bg2", "../../public/assets/kenney_background-elements-redux/Backgrounds/backgroundColorForest.png")
         this.load.image("log", "../../public/assets/kenney_platformer-art-deluxe/BasePack/Tiles/bridgeLogs.png")
         this.load.image("platform", "../../public/assets/kenney_platformer-art-deluxe/BasePack/Tiles/bridge.png")
         this.load.image("coin", "../../public/assets/kenney_platformer-art-deluxe/BasePack/Items/coinGold.png")
     }
 
     createPlatform() {
-        this.platform = this.physics.add.staticGroup()
-        let YLevel = 100
-        for (let i = 0; i < 10; i++) {
-            //Game width: 480, Game Height: 640
-            let randomX = Math.floor(Math.random() * 480)
-            if (YLevel < 530) {
-                this.platform.create(randomX, YLevel, "platform")
-                this.coin.create(randomX, YLevel - 35, "coin")
-                YLevel += 65
+        // Create platforms as a physics group (not static)
+        this.platform = this.physics.add.group({
+            allowGravity: false,
+            immovable: true
+        });
+        
+        // Create coin group
+        this.coin = this.physics.add.group({
+            allowGravity: false
+        });
+        
+        // Define platform positions with movement ranges
+        const platformData = [
+            { x: 120, y: 120, moveX: true, distance: 150, speed: 2000 },
+            { x: 300, y: 180, moveX: false, distance: 100, speed: 2500 }, // up/down
+            { x: 150, y: 240, moveX: true, distance: 200, speed: 3000 },
+            { x: 380, y: 300, moveX: false, distance: 100, speed: 1800 }, // up/down
+            { x: 90, y: 360, moveX: true, distance: 150, speed: 2200 },
+            { x: 250, y: 420, moveX: false, distance: 80, speed: 2600 },  // up/down
+            { x: 400, y: 480, moveX: true, distance: 180, speed: 2800 }
+        ];
+        
+        // Create each platform with its coin
+        platformData.forEach(data => {
+            // Create the platform
+            const platform = this.platform.create(data.x, data.y, "platform");
+            platform.body.immovable = true;
+            platform.body.allowGravity = false;
+            
+            // Create a coin and attach it to the platform
+            const coin = this.coin.create(data.x, data.y - 35, "coin");
+            
+            // Add movement tween
+            if (data.moveX) {
+                // Horizontal movement
+                this.tweens.add({
+                    targets: [platform, coin],  // Move both platform and coin
+                    x: platform.x + data.distance,
+                    duration: data.speed,
+                    yoyo: true,
+                    repeat: -1
+                });
+            } else {
+                // Vertical movement
+                this.tweens.add({
+                    targets: [platform, coin],  // Move both platform and coin
+                    y: platform.y + data.distance,
+                    duration: data.speed,
+                    yoyo: true,
+                    repeat: -1
+                });
             }
-        }
+        });
     }
     
     createAnimation() {
@@ -81,9 +124,11 @@ export default class level2 extends Phaser.Scene {
 
     create() {
         this.createAnimation();
-        this.load.image ('background')
+        // Remove this line - it's incorrect and doesn't do anything
+        // this.load.image ('background')
         this.ground = this.physics.add.staticGroup()
-        this.background = this.add.image(240, 320, "bg")
+        // Use the new key name "bg2" here
+        this.background = this.add.image(240, 320, "bg2")
         this.background.setScale(3)
         this.platform = this.physics.add.staticGroup()
         this.coin = this.physics.add.staticGroup()
