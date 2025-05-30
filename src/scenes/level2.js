@@ -15,12 +15,18 @@ export default class level2 extends Phaser.Scene {
         this.coin = undefined
         this.jump = 0;
         
-        // Set the score from previous level or default to 0
+        // Set the score and lives from previous level
         this.score = data.score || 0;
+        this.lives = data.lives || 3;
         
-        this.scorelabel=undefined
-        this.isJumping = false; // Add this line
+        this.scorelabel = undefined
+        this.livesLabel = undefined
+        this.isJumping = false;
         this.background = undefined
+        
+        // For fall detection
+        this.wasOnPlatform = false;
+        this.lastY = 0;
     }
 
     preload() {
@@ -92,8 +98,16 @@ export default class level2 extends Phaser.Scene {
             this.ground.create(cords, 625, "log")
             cords += 71
         }
-        this.physics.add.overlap(this.char,this.coin,this.collectCoin,null,this)
-        this.scoreLabel = this.add.text(10, 10, 'Score: 0', {
+        this.physics.add.overlap(this.char, this.coin, this.collectCoin, null, this)
+        
+        // Create score label with carried over score
+        this.scoreLabel = this.add.text(10, 10, `Score: ${this.score}`, {
+            color: 'white',
+            backgroundColor: 'black'
+        }).setDepth(1);
+        
+        // Add lives display with carried over lives
+        this.livesLabel = this.add.text(370, 10, `Lives: ${this.lives}`, {
             color: 'white',
             backgroundColor: 'black'
         }).setDepth(1);
@@ -102,6 +116,21 @@ export default class level2 extends Phaser.Scene {
     update(time) {
         // Check if character is on the ground
         const onGround = this.char.body.touching.down || this.char.body.blocked.down;
+        
+        // Save current Y position
+        const currentY = this.char.y;
+        
+        // Check if on platform (not the bottom ground)
+        const onPlatform = onGround && currentY < 550;
+        
+        if (onPlatform) {
+            this.wasOnPlatform = true;
+        }
+        
+        // Fall detection - if player was on a platform then falls beyond Y threshold
+        if (this.wasOnPlatform && !onGround && currentY > 550) {
+            this.loseLife();
+        }
         
         // Reset jump ability when landing
         if (onGround && this.isJumping) {
@@ -140,9 +169,47 @@ export default class level2 extends Phaser.Scene {
         } else if (onGround && !this.isJumping && !this.char.anims.isPlaying) {
             this.char.anims.play('idle', true);
         }
+        
+        // Store last Y position for next frame
+        this.lastY = currentY;
     }
-    collectCoin(char, coin)
-    {
+    
+    // Add the loseLife method
+    loseLife() {
+        // Reduce lives
+        this.lives--;
+        
+        // Update display
+        this.livesLabel.setText(`Lives: ${this.lives}`);
+        
+        // Reset player position
+        this.char.setVelocity(0, 0);
+        this.char.x = 200;
+        this.char.y = 520;
+        
+        // Reset fall detection
+        this.wasOnPlatform = false;
+        
+        // Check for game over
+        if (this.lives <= 0) {
+            this.scene.start('over-scene', { score: this.score });
+            return;
+        }
+        
+        // Flash the player to indicate damage
+        this.tweens.add({
+            targets: this.char,
+            alpha: 0.5,
+            duration: 100,
+            yoyo: true,
+            repeat: 5,
+            onComplete: () => {
+                this.char.alpha = 1;
+            }
+        });
+    }
+    
+    collectCoin(char, coin) {
         coin.destroy();
         this.score += 1;
         this.scoreLabel.setText(`Score: ${this.score}`);
@@ -152,5 +219,4 @@ export default class level2 extends Phaser.Scene {
             this.scene.start('over-scene', { score: this.score });
         }
     }
-
 }
