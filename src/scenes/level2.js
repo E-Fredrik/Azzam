@@ -30,19 +30,19 @@ export default class level2 extends Phaser.Scene {
     }
 
     preload() {
-        this.load.spritesheet("char", "../../public/assets/kenney_platformer-art-deluxe/BasePack/Player/p1_stand.png", {
+        this.load.spritesheet("char", "assets/kenney_platformer-art-deluxe/BasePack/Player/p1_stand.png", {
             frameWidth: 64,
             frameHeight: 92,
         })
-        this.load.spritesheet("char-jump", "../../public/assets/kenney_platformer-art-deluxe/BasePack/Player/p1_jump.png", {
+        this.load.spritesheet("char-jump", "assets/kenney_platformer-art-deluxe/BasePack/Player/p1_jump.png", {
             frameWidth: 64,
             frameHeight: 92,
         })
         // Use a different key for the level 2 background
-        this.load.image("bg2", "../../public/assets/kenney_background-elements-redux/Backgrounds/backgroundColorForest.png")
-        this.load.image("log", "../../public/assets/kenney_platformer-art-deluxe/BasePack/Tiles/bridgeLogs.png")
-        this.load.image("platform", "../../public/assets/kenney_platformer-art-deluxe/BasePack/Tiles/bridge.png")
-        this.load.image("coin", "../../public/assets/kenney_platformer-art-deluxe/BasePack/Items/coinGold.png")
+        this.load.image("bg2", "assets/kenney_background-elements-redux/Backgrounds/backgroundColorForest.png")
+        this.load.image("log", "assets/kenney_platformer-art-deluxe/BasePack/Tiles/bridgeLogs.png")
+        this.load.image("platform", "assets/kenney_platformer-art-deluxe/BasePack/Tiles/bridge.png")
+        this.load.image("coin", "assets/kenney_platformer-art-deluxe/BasePack/Items/coinGold.png")
     }
 
     createPlatform() {
